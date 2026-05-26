@@ -807,156 +807,82 @@
     <!-- Title Section -->
     <div style="text-align: center; padding: 40px 20px; background-color: #ffffff;">
         <h1 style="font-size: 2.5em; font-weight: 600; color: #2c3e50; margin: 0; line-height: 1.2; max-width: 1400px; margin-left: auto; margin-right: auto;">
-            FlexiCodec: A Dynamic Neural Audio Codec for Low Frame Rates
+            FSLM: A Low Frame Rate Spoken Language Model with Dynamic, Controllable Frame Rate
         </h1>
         <div>
-          <center>Jiaqi Li, Yao Qian, Yuxuan Hu, Leying Zhang, Xiaofei Wang, Heng Lu, Manthan Thakker, Jinyu Li, Sheng Zhao, Zhizheng Wu</center>
-        </div>
-        <div>
-          <center>Paper accepted to ICLR 2026</center>
-        </div>
-        <div class="flex gap-2 justify-center flex-wrap">
-          <a href="http://arxiv.org/abs/2510.00981" target="_blank">
-            <img src="https://img.shields.io/badge/arXiv-2510.00981-brightgreen?style=flat-square">
-          </a>
-          <a href="https://github.com/amphionspace/flexicodec" target="_blank">
-            <img src="https://img.shields.io/badge/Github-Code-pink?logo=Github&style=flat-square">
-          </a>
-          <a href="https://openreview.net/forum?id=kYkfCs4ZAH" target="_blank">
-            <img src="https://img.shields.io/badge/OpenReview-ICLR2026-red?logo=OpenReview&style=flat-square">
-          </a>
-          <!-- <a href="https://github.com/jiaqili3/DualCodec" target="_blank">
-            <img src="https://img.shields.io/badge/Amphion-Stable_Release-blue?logo=Github&style=flat-square">
-          </a> -->
-          <!-- <a href="https://dualcodec.github.io/" target="_blank">
-            <img src="https://img.shields.io/badge/WebPage-Demo-red">
-          </a> -->
+          <center>Anonymous EMNLP Submission</center>
         </div>
     </div>
     
     <d-article>
         <figure style="margin: 20px 0; width: 100%; max-width: none;">
-            <img src="flexicodec_architetcure.png" alt="Architecture of FlexiCodec" style="width: 100%; height: auto; max-width: none; border: 1px solid #ddd; border-radius: 8px;">
+            <img src="flexicodec_architetcure.png" alt="Architecture of FSLM" style="width: 100%; height: auto; max-width: none; border: 1px solid #ddd; border-radius: 8px;">
             <figcaption style="margin-top: 10px; text-align: center; max-width: 900px; margin-left: auto; margin-right: auto;">
-                Architecture of <strong>FlexiCodec</strong>. The model employs dynamic frame rates and an ASR feature-assisted dual-stream encoder, and supports a controllable frame rate between 3Hz and 12.5Hz.
+                Overall architecture of <strong>FSLM</strong>.
             </figcaption>
         </figure>
 
 
         <h2 id="abstract">Abstract</h2>
             <p>
-                Hello world
+                Spoken language models (SLMs) are LLMs that can listen and speak. SLMs typically use fixed, 25Hz or 12.5Hz audio frame rates. This fixed frame rate can lead to inefficient use of compute resources. Recent audio tokenizer research proposed dynamic frame rate representations and boosted frame efficiency at 6.25Hz. This dynamic tokenization technique has not been applied to SLMs yet, and the flexibility brought by dynamic frame rate especially benefits SLMs. In this work, we introduce <strong>F</strong>lexible <strong>S</strong>poken <strong>L</strong>anguage <strong>M</strong>odel (FSLM), a spoken language model that supports <em>dynamic</em> and <em>controllable</em> frame rates. The architecture is a thinker-talker end-to-end SLM. To achieve dynamic frame rate speech output, FSLM predicts speech tokens extracted from a pre-trained FlexiCodec which merges adjacent frames based on similarity. To achieve controllable frame rate generation, we introduce a direct frame-rate control technique and encode frame rate using positional encoding. This allows a single FSLM to operate across a range of compute budgets: from high-fidelity generation at 12.5Hz to efficient generation at 6.25Hz without retraining. Results show that reducing the output frame rate from 12.5 to 6.25Hz incurs only small performance degradation while halving inference time. At 6.25Hz, FSLM outperforms higher frame rate models Qwen 2.5-Omni and Kimi-Audio.
             </p>
         <h2 id="method">Method</h2>
-        Our motivation was to explore very low frame rate neural audio codecs. A very low frame rate codec is beneficial for the downstream tasks efficiency.
-        Our final system, FlexiCodec is a novel low-frame-rate codec built on three design choices:
-            (1) Dynamic frame rate,
-            (2) Rich semantics guided by ASR feature, and 
-            (3) Frame rate control ability. 
-            This allows our codec system to support very low frame rate, and A controllable frame rate supports versatile efficiency-performance tradeoff demands.
-            A general comparison between different audio tokenization methods is shown in the table below.
+        FSLM is a thinker-talker speech-in, speech-out model with dynamic and controllable frame rates.
+        To achieve flexible speech output, we reuse FlexiCodec as the prediction target of FSLM's talker module.
+        To achieve flexible speech input, we adopt a similar frame merging strategy on continuous speech representations.
+        For controllable frame-rate generation, we introduce an intuitive controlling condition that allows the user to directly control the average output frame rate with a high precision, allowing a single FSLM model to operate in any frame rate below 12.5Hz without retraining.
+            A general comparison between FSLM and representative spoken language models is shown in the table below.
         <div class="table-responsive" id="table-tokenization-comparison">
             <table>
                 <thead>
                     <tr>
-                        <th>Method</th>
+                        <th>Model</th>
                         <th>Frame Rate (Hz)</th>
-                        <th>Dynamic Rate</th>
-                        <th>Controllable Rate</th>
-                        <th>Semantic Augmentation</th>
-                        <th>Has TTS Results?</th>
+                        <th>FR Control</th>
+                        <th>Dynamic FR</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>DAC</strong></td>
-                        <td>75</td>
-                        <td>✗</td>
-                        <td>✗</td>
-                        <td>✗</td>
-                        <td>✗</td>
-                    </tr>
-                    <tr>
-                        <td><strong>SpeechTokenizer</strong></td>
-                        <td>50</td>
-                        <td>✗</td>
-                        <td>✗</td>
-                        <td>SSL feature (HuBERT)</td>
-                        <td>✓</td>
-                    </tr>
-                    <tr>
-                        <td><strong>CodecSlime</strong></td>
-                        <td>40 (Avg)</td>
-                        <td>✓</td>
-                        <td>✓ (40,50,67,80Hz options)</td>
-                        <td>✗</td>
-                        <td>✗</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Mimi</strong></td>
-                        <td>12.5</td>
-                        <td>✗</td>
-                        <td>✗</td>
-                        <td>SSL feature (WavLM)</td>
-                        <td>✓</td>
-                    </tr>
-                    <tr>
-                        <td><strong>DualCodec</strong></td>
-                        <td>12.5/25</td>
-                        <td>✗</td>
-                        <td>✗</td>
-                        <td>SSL feature (w2v-bert-2)</td>
-                        <td>✓</td>
-                    </tr>
-                    <tr>
-                        <td><strong>TaDiCodec</strong></td>
+                        <td><strong>Mimo-Audio-7B</strong></td>
                         <td>6.25</td>
                         <td>✗</td>
                         <td>✗</td>
-                        <td>Text</td>
-                        <td>✓</td>
                     </tr>
                     <tr>
-                        <td><strong>Phoneme Tokens</strong></td>
-                        <td>11.7 (Avg)</td>
-                        <td>✓</td>
+                        <td><strong>Kimi-Audio-7B</strong></td>
+                        <td>12.5</td>
                         <td>✗</td>
-                        <td>-</td>
-                        <td>-</td>
+                        <td>✗</td>
                     </tr>
                     <tr>
-                        <td><strong>BPE Text Tokens</strong></td>
-                        <td>4.5 (Avg)</td>
-                        <td>✓</td>
+                        <td><strong>Qwen2.5-Omni-7B</strong></td>
+                        <td>25 in / 50 out</td>
                         <td>✗</td>
-                        <td>-</td>
-                        <td>-</td>
+                        <td>✗</td>
                     </tr>
                     <tr style="border-top: 2px solid #000;">
-                        <td><strong>FlexiCodec</strong></td>
-                        <td><strong>6.25/8.3/12.5 (Avg)</strong></td>
+                        <td><strong>FSLM-7B</strong></td>
+                        <td><strong>Any ≤12.5</strong></td>
                         <td><strong>✓</strong></td>
-                        <td><strong>✓ (Any from 3 to 12.5Hz)</strong></td>
-                        <td><strong>ASR feature</strong></td>
                         <td><strong>✓</strong></td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div class="table-caption" style="margin-top: 10px; font-size: 0.9em; color: #666; text-align: justify;">
-                Comparison of different audio tokenization methods and their properties.
+                Capability comparison with representative spoken language models. "FR" is short for "Frame Rate".
         </div>
-
         <div><br>
         The following figure shows a zoomed-in view of the frame merging and unmerging module, which enables dynamic frame rate.
-        Each has a transformer inside. 
         A merging "threshold" parameter controls the intensity of frame merging. 
         A lower threshold results in a lower <i>average</i> frame rate (we can only report "average" frame rate because the frame rate is not fixed).
-        During inference, users can select from a threshold from 0.7 to 1.0, to use a frame rate (3.0 to 12.5Hz) they want.
+        For controllable frame-rate generation, instead of indirectly adjusting a merging threshold, we condition the Talker on the target frame rate using sinusoidal positional encoding. This enables precise control over a continuous range of output frame rates.
         In the following sections, we provide demo audios for our experiments.
             </div>
         <figure style="text-align: center; margin: 30px 0;">
-            <img src="mergingunmerging_architecture.png" alt="FlexiCodec merging and unmerging architecture" style="max-width: 95%; height: auto; border: 1px solid #ddd; border-radius: 8px;">
+            <img src="mergingunmerging_architecture.png" alt="FSLM frame merging architecture" style="max-width: 95%; height: auto; border: 1px solid #ddd; border-radius: 8px;">
             <figcaption style="margin-top: 10px; font-size: 0.9em; color: #666; text-align: center; max-width: 800px; margin-left: auto; margin-right: auto;">
                 The system adaptively merges semantically similar frames during encoding and reconstructs the original temporal resolution during decoding.
                     </figcaption>
@@ -967,7 +893,7 @@
             <h2 id="preliminary-experiments">Examining the impact of very low frame rates</h2>
             <p>
                 We first investigate the performance of representative audio codecs at very low frame rates. 
-                We created three new baseline versions by retraining DAC and DualCodec to operate at 12.5Hz, 8.3Hz, and 6.25Hz, respectively. 
+                These experiments motivate the design of FSLM by demonstrating the advantage of FlexiCodec at low frame rates.
             </p>
             
             <h3 id="semantic-evaluation">Semantic Information Preservation</h3>
@@ -1449,8 +1375,8 @@
 
 
             <div>
-                We have compared Flexi-Codec with open-source neural audio codecs, spanning various bitrate and frame rates. We find that FlexiCodec has state-of-the-art acoustic quality (RVQ1:8) and semantic preservation (RVQ1) at various bitrate levels. 
-                And it is competitive to higher frame rate systems, such as SpeechTokenizer-50Hz, Encodec-75Hz, WavTokenizer-75Hz, etc.
+                We have compared the FlexiCodec tokenizer used by FSLM with open-source neural audio codecs, spanning various bitrate and frame rates. FlexiCodec has state-of-the-art acoustic quality (RVQ1:8) and semantic preservation (RVQ1) at various bitrate levels, 
+                and it is competitive to higher frame rate systems such as SpeechTokenizer-50Hz, Encodec-75Hz, WavTokenizer-75Hz, etc.
             </div>
             <div id="table-codec-comparison">
                 <table class="codec-table">
@@ -1676,10 +1602,10 @@
 
             <h2>Text-to-Speech</h2>
             <p>
-We built a text-to-speech system with FlexiCodec. This system is an AR + NAR(flow matching) TTS.
+We validate FSLM's speech generation capability through text-to-speech experiments. The TTS system uses an AR + NAR (flow matching) architecture.
 The AR predicts each FlexiCodec token and its frame length using two parallel prediction heads.
-Because the AR model is usually the slowest part in TTS, it can greatly benefit from FlexiCodec's low frame rate.
-For the NAR, we tried two schemes, one is using the 50Hz male spectrogram feature, the second one is using the 12.5Hz FlexiCodec feature.
+Because the AR model is usually the slowest part in TTS, it greatly benefits from FSLM's low frame rate.
+For the NAR, we tried two schemes: one using the 50Hz mel spectrogram feature, the second using the 12.5Hz FlexiCodec feature.
             </p>
 
             <div style="margin-bottom: 10px; text-align: center;">
@@ -1733,7 +1659,7 @@ For the NAR, we tried two schemes, one is using the 50Hz male spectrogram featur
                             <td><audio controls preload="none"><source src="tts_examples1/gt/00009.wav"></audio></td>
                         </tr>
                         <tr>
-                            <td style="text-align: center; vertical-align: middle; min-width: 140px; padding: 0;"><strong>FlexiCodec-TTS (6.25Hz AR, 50Hz NAR)</strong></td>
+                            <td style="text-align: center; vertical-align: middle; min-width: 140px; padding: 0;"><strong>FSLM-TTS (6.25Hz AR, 50Hz NAR)</strong></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts6hzmel/Waves/GeneralSentence/00000.wav"></audio></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts6hzmel/Waves/GeneralSentence/00001.wav"></audio></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts6hzmel/Waves/GeneralSentence/00002.wav"></audio></td>
@@ -1746,7 +1672,7 @@ For the NAR, we tried two schemes, one is using the 50Hz male spectrogram featur
                             <td><audio controls preload="none"><source src="tts_examples1/tts6hzmel/Waves/GeneralSentence/00009.wav"></audio></td>
                         </tr>
                         <tr>
-                            <td style="text-align: center; vertical-align: middle; min-width: 140px; padding: 0;"><strong>FlexiCodec-TTS (8.3Hz AR, 50Hz NAR)</strong></td>
+                            <td style="text-align: center; vertical-align: middle; min-width: 140px; padding: 0;"><strong>FSLM-TTS (8.3Hz AR, 50Hz NAR)</strong></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts8hzmel/Waves/GeneralSentence/00000.wav"></audio></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts8hzmel/Waves/GeneralSentence/00001.wav"></audio></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts8hzmel/Waves/GeneralSentence/00002.wav"></audio></td>
@@ -1759,7 +1685,7 @@ For the NAR, we tried two schemes, one is using the 50Hz male spectrogram featur
                             <td><audio controls preload="none"><source src="tts_examples1/tts8hzmel/Waves/GeneralSentence/00009.wav"></audio></td>
                         </tr>
                         <tr>
-                            <td style="text-align: center; vertical-align: middle; min-width: 140px; padding: 0;"><strong>FlexiCodec-TTS (12.5Hz AR, 50Hz NAR)</strong></td>
+                            <td style="text-align: center; vertical-align: middle; min-width: 140px; padding: 0;"><strong>FSLM-TTS (12.5Hz AR, 50Hz NAR)</strong></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts12hzmel/Waves/GeneralSentence/00000.wav"></audio></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts12hzmel/Waves/GeneralSentence/00001.wav"></audio></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts12hzmel/Waves/GeneralSentence/00002.wav"></audio></td>
@@ -1785,7 +1711,7 @@ For the NAR, we tried two schemes, one is using the 50Hz male spectrogram featur
                             <td><audio controls preload="none"><source src="tts_examples1/cosyvoice/Waves/GeneralSentence/00009.wav"></audio></td>
                         </tr>
                         <tr>
-                            <td style="text-align: center; vertical-align: middle; min-width: 140px; padding: 0;"><strong>FlexiCodec-TTS (6.25Hz AR, 12.5Hz NAR)</strong></td>
+                            <td style="text-align: center; vertical-align: middle; min-width: 140px; padding: 0;"><strong>FSLM-TTS (6.25Hz AR, 12.5Hz NAR)</strong></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts6hzcodec/Waves/GeneralSentence/00000.wav"></audio></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts6hzcodec/Waves/GeneralSentence/00001.wav"></audio></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts6hzcodec/Waves/GeneralSentence/00002.wav"></audio></td>
@@ -1798,7 +1724,7 @@ For the NAR, we tried two schemes, one is using the 50Hz male spectrogram featur
                             <td><audio controls preload="none"><source src="tts_examples1/tts6hzcodec/Waves/GeneralSentence/00009.wav"></audio></td>
                         </tr>
                         <tr>
-                            <td style="text-align: center; vertical-align: middle; min-width: 140px; padding: 0;"><strong>FlexiCodec-TTS (8.3Hz AR, 12.5Hz NAR)</strong></td>
+                            <td style="text-align: center; vertical-align: middle; min-width: 140px; padding: 0;"><strong>FSLM-TTS (8.3Hz AR, 12.5Hz NAR)</strong></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts8hzcodec/Waves/GeneralSentence/00000.wav"></audio></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts8hzcodec/Waves/GeneralSentence/00001.wav"></audio></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts8hzcodec/Waves/GeneralSentence/00002.wav"></audio></td>
@@ -1811,7 +1737,7 @@ For the NAR, we tried two schemes, one is using the 50Hz male spectrogram featur
                             <td><audio controls preload="none"><source src="tts_examples1/tts8hzcodec/Waves/GeneralSentence/00009.wav"></audio></td>
                         </tr>
                         <tr>
-                            <td style="text-align: center; vertical-align: middle; min-width: 140px; padding: 0;"><strong>FlexiCodec-TTS (12.5Hz AR, 12.5Hz NAR)</strong></td>
+                            <td style="text-align: center; vertical-align: middle; min-width: 140px; padding: 0;"><strong>FSLM-TTS (12.5Hz AR, 12.5Hz NAR)</strong></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts12hzcodec/Waves/GeneralSentence/00000.wav"></audio></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts12hzcodec/Waves/GeneralSentence/00001.wav"></audio></td>
                             <td><audio controls preload="none"><source src="tts_examples1/tts12hzcodec/Waves/GeneralSentence/00002.wav"></audio></td>
@@ -1858,19 +1784,17 @@ For the NAR, we tried two schemes, one is using the 50Hz male spectrogram featur
                     Text-to-Speech demos across models. Columns are different text samples.
                 </p>
             </div>
-            <p>We find that FlexiCodec-TTS delivers strong quality at less compute than baselines.
+            <p>We find that FSLM-TTS delivers strong quality at less compute than baselines.
                 With 6.25Hz AR + 50Hz NAR, it matches or surpasses CosyVoice and SparkTTS. 
                 A 50Hz NAR consistently outperforms 12.5Hz across WER, SIM-0, NMOS, and QMOS, showing that higher temporal resolution is important for NAR.
-                Lower AR rates (8.3/6.25Hz) preserve or slightly improve accuracy with 50Hz NAR—likely due to better semantic-acoustic disentanglement and shorter sequences that simplify attention.
+                Lower AR rates (8.3/6.25Hz) preserve or slightly improve accuracy with 50Hz NAR, likely due to better semantic-acoustic disentanglement and shorter sequences that simplify attention.
                 </p>
 
             <h2 id="frame-rate-controllability">Frame rate controllability analysis</h2>
             <p>
-                This section demonstrates FlexiCodec's frame rate controllability through different merging threshold settings. 
+                This section demonstrates FSLM's frame rate controllability through different merging threshold settings. 
                 The threshold parameter controls the dynamic frame rate mechanism, where lower thresholds lead to more aggressive frame merging and lower effective frame rates.
-                <!-- Each row shows results for a different threshold value, allowing you to hear how frame rate controllability affects audio quality across different samples. -->
-                As can be heard from the audios. the intelligibility is adequate at > 4.5Hz, but becomes unusable for 3.6Hz and 3.0Hz.
-                <!-- At very low average frame such as 3.0 and 3.6Hz, the intelligibility is very poor. -->
+                As can be heard from the audios, the intelligibility is adequate at > 4.5Hz, but becomes unusable for 3.6Hz and 3.0Hz.
             </p>
 
             <div style="margin-bottom: 10px; text-align: center;">
@@ -1993,7 +1917,7 @@ For the NAR, we tried two schemes, one is using the 50Hz male spectrogram featur
             </div>
             
             <div class="demo-caption" style="margin-top: 10px; font-size: 0.9em; color: #666; text-align: justify;">
-                FlexiCodec-reconstructed RVQ-1 audios using different merging thresholds.
+                FSLM-reconstructed RVQ-1 audios using different merging thresholds.
                 Lower threshold values (0.7, 0.75, 0.8) result in more aggressive frame merging and lower effective frame rates, while higher thresholds (0.90, 1.0) 
                 preserve more temporal detail.
             </div>
