@@ -568,6 +568,7 @@
     };
 
     let ALL_SAMPLES = [];
+    let AUDIO_META_OBSERVER = null;
 
     // ==== Utils ==============================================================
     function esc(text) {
@@ -679,7 +680,7 @@
             '<div class="slot-name">' + esc(label) + '</div>',
             '<div class="audio-defer">',
               '<button class="play-btn" type="button" data-src="' + esc(audioPath) + '">\u25B6 Play audio</button>',
-              '<audio controls preload="none" data-src="' + esc(audioPath) + '" hidden></audio>',
+              '<audio controls preload="metadata" data-src="' + esc(audioPath) + '" hidden></audio>',
             '</div>',
             note,
           '</div>'
@@ -717,6 +718,66 @@
       return parts.join('');
     }
 
+    function primeAudioMetadata(audio) {
+      if (!audio) return;
+      if (audio.dataset.metaPrimed === '1') return;
+      const src = audio.getAttribute('src') || audio.getAttribute('data-src');
+      if (!src) return;
+      if (!audio.getAttribute('src')) {
+        audio.setAttribute('src', src);
+      }
+      audio.preload = 'metadata';
+      audio.dataset.metaPrimed = '1';
+      audio.load();
+    }
+
+    function observeAudioMetadata() {
+      const audios = document.querySelectorAll('.audio-defer audio[data-src]');
+      if (!audios.length) return;
+      if (!('IntersectionObserver' in window)) {
+        audios.forEach(function(audio, idx) {
+          if (idx < 6) primeAudioMetadata(audio);
+        });
+        return;
+      }
+      if (!AUDIO_META_OBSERVER) {
+        AUDIO_META_OBSERVER = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (!entry.isIntersecting) return;
+            primeAudioMetadata(entry.target);
+            AUDIO_META_OBSERVER.unobserve(entry.target);
+          });
+        }, {
+          root: null,
+          rootMargin: '240px 0px',
+          threshold: 0.01
+        });
+      }
+      audios.forEach(function(audio) {
+        if (audio.dataset.observed === '1') return;
+        audio.dataset.observed = '1';
+        AUDIO_META_OBSERVER.observe(audio);
+      });
+    }
+
+    function prefetchLikelyAudios(maxCount) {
+      const run = function() {
+        let warmed = 0;
+        document.querySelectorAll('.audio-defer audio[data-src]').forEach(function(audio) {
+          if (warmed >= maxCount) return;
+          if (audio.dataset.prefetched === '1') return;
+          primeAudioMetadata(audio);
+          audio.dataset.prefetched = '1';
+          warmed += 1;
+        });
+      };
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(run, { timeout: 1200 });
+      } else {
+        window.setTimeout(run, 250);
+      }
+    }
+
     function attachAudioLoadHandlers() {
       document.querySelectorAll('.play-btn').forEach(function(btn) {
         if (btn.dataset.bound === '1') return;
@@ -726,10 +787,7 @@
           if (!wrap) return;
           const audio = wrap.querySelector('audio[data-src]');
           if (!audio) return;
-          if (!audio.getAttribute('src')) {
-            audio.setAttribute('src', audio.getAttribute('data-src'));
-            audio.load();
-          }
+          primeAudioMetadata(audio);
           audio.hidden = false;
           btn.remove();
           const p = audio.play();
@@ -756,6 +814,8 @@
       } else {
         list.innerHTML = visible.map(sampleCardHtml).join('');
         attachAudioLoadHandlers();
+        observeAudioMetadata();
+        prefetchLikelyAudios(2);
       }
       updateFilterMeta(visible.length, ALL_SAMPLES.length);
     }
@@ -825,7 +885,7 @@
       const audioBlock = audioPath ? [
         '<div class="audio-defer">',
           '<button class="play-btn" type="button" data-src="' + esc(audioPath) + '">\u25B6 Play audio</button>',
-          '<audio controls preload="none" data-src="' + esc(audioPath) + '" hidden></audio>',
+          '<audio controls preload="metadata" data-src="' + esc(audioPath) + '" hidden></audio>',
         '</div>'
       ].join('') : '<p class="slot-empty">Audio file missing in manifest.</p>';
       return [
@@ -871,6 +931,8 @@
         }
         list.innerHTML = samples.map(function(s, i) { return fdSampleCardHtml(s, i); }).join('');
         attachAudioLoadHandlers();
+        observeAudioMetadata();
+        prefetchLikelyAudios(2);
       } catch (err) {
         fdShowError('Failed to load demo_assets_flexislm_data/manifest.json: ' + err.message);
       }
