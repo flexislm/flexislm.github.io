@@ -417,11 +417,9 @@
 
   <header class='hero'>
     <div class='hero-inner'>
-      <h1>FlexiSLM: Dynamic and Controllable Frame Rate Spoken Language Model</h1>
+      <h1>FlexiSLM: A Dynamic and Controllable Frame Rate Spoken Language Model</h1>
       <p class='hero-subtitle'>
-        Audio demos for FlexiSLM at multiple frame-rate configurations, compared with
-        Qwen2.5-Omni, Qwen3-Omni-30B, MiMo-Audio-7B, and Kimi-Audio-7B baselines on
-        OpenAudioBench, advbench, alpacaeval_full, commoneval, ifeval, and sd-qa.
+        Paper submission to EMNLP
       </p>
     </div>
   </header>
@@ -431,37 +429,36 @@
     <!-- ===== Block 1: Intro + contributions + architecture image ===== -->
     <section class='section' id='abstract'>
       <h2>FlexiSLM &mdash; Overview</h2>
-      <p class='section-subtitle'>What we propose, in one paragraph.</p>
       <p>
-        Existing spoken language models (SLMs) speak at a fixed frame rate (e.g., 25 Hz or
-        12.5 Hz), which ignores the time-varying information density of speech and gives no
-        way to trade quality for speed at inference time. We introduce
-        <strong>FlexiSLM</strong>, an SLM with <em>dynamic</em> and <em>controllable</em>
-        frame rates on both speech input and output. A single FlexiSLM model runs anywhere
-        from 12.5 Hz down to 4.0 Hz without retraining.
+        Existing spoken language models (SLMs) typically use a fixed speech-token frame
+        rate (for example, 25 Hz or 12.5 Hz). This fixed-rate design cannot adapt to
+        time-varying speech complexity and does not offer a direct speed-quality trade-off
+        at inference time. We introduce <strong>FlexiSLM</strong>, the first SLM that
+        supports <em>dynamic</em> and <em>controllable</em> frame rates on both speech
+        input and output. A single trained model can be steered from 12.5 Hz down to 4.0
+        Hz without retraining.
       </p>
 
       <h3 style='margin-top: 18px; margin-bottom: 6px; font-size:1.1rem;'>Key contributions</h3>
       <ul class='contrib-list'>
         <li>
-          <strong>Dynamic frame rate.</strong> FlexiSLM predicts speech tokens from a
-          pre-trained FlexiCodec, which merges adjacent frames based on similarity, so the
-          effective frame rate adapts to local speech content.
+          <strong>Dynamic frame rate SLM framework and validation.</strong> We introduce
+          FlexiSLM, the first dynamic frame rate SLM framework, with dynamic frame
+          compression on both speech input and output. Experiments show strong performance
+          at 12.5 Hz and 6.25 Hz, with graceful degradation at 5.0 Hz and 4.0 Hz. We plan
+          to release the code and model to support future research.
         </li>
         <li>
-          <strong>Controllable frame rate.</strong> A direct frame-rate control conditioned
-          via positional encoding lets one model operate across a continuous range of output
-          frame rates (12.5 Hz &rarr; 4.0 Hz) at inference time.
+          <strong>Accurate and practical frame rate control.</strong> We propose direct
+          frame rate conditioning, letting users specify the average output frame rate
+          instead of indirectly tuning a merging threshold. This makes FlexiSLM, to our
+          knowledge, the first SLM with frame rate controllability.
         </li>
         <li>
-          <strong>Quality at high speed.</strong> At 6.25 Hz output, FlexiSLM roughly
-          <em>halves</em> AR inference time vs. 12.5 Hz with only small quality loss; at its
-          high-quality operating points it outperforms fixed-frame-rate 7B baselines such as
-          Qwen2.5-Omni and Kimi-Audio.
-        </li>
-        <li>
-          <strong>Thinker-Talker end-to-end S2S.</strong> The architecture handles speech in,
-          speech out end-to-end while supporting flexible frame rates on both sides.
+          <strong>Strong quality-efficiency trade-off.</strong> At 6.25 Hz output, FlexiSLM
+          roughly <em>halves</em> AR inference time relative to 12.5 Hz with only minor
+          quality degradation; at high-quality operating points, it outperforms fixed-rate
+          7B baselines such as Qwen2.5-Omni and Kimi-Audio.
         </li>
       </ul>
 
@@ -479,9 +476,8 @@
     <section class='section' id='comparison'>
       <h2>Comparison with Baseline Systems</h2>
       <p class='section-subtitle'>
-        Each card is one evaluation case (source prompt + every FlexiSLM configuration +
-        every baseline). By default we show one sample per dataset; pick a specific dataset
-        in the filter to see all of its samples.
+        Each card is one evaluation case. By default we show one sample per dataset; pick a
+        specific dataset in the filter to see all of its samples.
       </p>
 
       <div class='notation'>
@@ -508,9 +504,11 @@
     <section class='section' id='flexislm-data'>
       <h2>FlexiSLM-Data Showcase</h2>
       <p class='section-subtitle'>
-        Curated paired user / assistant speech samples from FlexiSLM-Data. Each card shows
-        the user's spoken prompt and the assistant's spoken response, together with the
-        transcript and rough duration / audio-token statistics taken from the manifest.
+        FlexiSLM-Data is our large-scale speech-to-speech dialogue corpus used to train
+        FlexiSLM. This section presents curated user-assistant speech pairs to give an
+        intuitive view of the data style and interaction quality. Each card shows the
+        user's spoken prompt and the assistant's spoken response, together with transcript
+        text and rough duration / audio-token statistics from the manifest.
       </p>
       <div class='sample-list' id='flexislm-data-list'></div>
       <div class='error-box' id='flexislm-data-error' style='display:none; margin-top: 16px;'></div>
@@ -636,6 +634,19 @@
       return out;
     }
 
+    // Friendly display names for dataset ids used in filters and metadata.
+    function datasetDisplayName(ds) {
+      const m = {
+        advbench: 'AdvBench',
+        alpacaeval_full: 'AlpacaEval',
+        commoneval: 'CommonEval',
+        ifeval: 'IFEval',
+        'sd-qa': 'SD-QA',
+        OpenAudioBench: 'OpenAudioBench'
+      };
+      return m[ds] || ds;
+    }
+
     // Friendly display names for "dataset / subset" pairs.
     function datasetLabel(sample) {
       const ds = sample.dataset_dir || '';
@@ -650,14 +661,7 @@
         };
         return sm[sub] || sub || ds;
       }
-      const m = {
-        'advbench':         'AdvBench',
-        'alpacaeval_full':  'AlpacaEval (Full)',
-        'commoneval':       'CommonEval',
-        'ifeval':           'IFEval',
-        'sd-qa':            'SD-QA'
-      };
-      return m[ds] || ds;
+      return datasetDisplayName(ds);
     }
 
     // ==== Rendering ==========================================================
@@ -740,7 +744,7 @@
       if (FILTER_STATE.dataset === 'all') {
         el.textContent = 'Showing 1 sample per dataset (' + shown + ' shown of ' + total + ' total).';
       } else {
-        el.textContent = 'Dataset = ' + FILTER_STATE.dataset + ' \u2192 ' + shown + ' samples shown.';
+        el.textContent = 'Dataset = ' + datasetDisplayName(FILTER_STATE.dataset) + ' \u2192 ' + shown + ' samples shown.';
       }
     }
 
@@ -762,7 +766,7 @@
       const datasets = uniqueSorted(ALL_SAMPLES.map(function(s) { return s.dataset_dir; }));
       const opts = ['<option value="all">All datasets (1 sample each)</option>'];
       datasets.forEach(function(d) {
-        opts.push('<option value="' + esc(d) + '">' + esc(d) + '</option>');
+        opts.push('<option value="' + esc(d) + '">' + esc(datasetDisplayName(d)) + '</option>');
       });
       sel.innerHTML = opts.join('');
       sel.value = FILTER_STATE.dataset;
