@@ -1,6 +1,5 @@
 {
   "dataset": "FlexiSLM-Data",
-  "source_jsonl": "/mnt/bn/lijiaqi/speechllm_make_dataset/workspace/dataset/0505_web_questions_hunyuan/output/chaoren_new_s2s.deepseekfiltered.filtered.with_durations_qwen3tts/chaoren_new_s2s.deepseekfiltered.filtered.with_durations_s2s.with_durations.jsonl",
   "num_samples": 10,
   "samples": [
     {
