@@ -111,6 +111,40 @@
       color: var(--ink-2);
       font-size: 0.96rem;
     }
+    .hero-authors {
+      margin: 14px auto 0;
+      max-width: 900px;
+      color: var(--ink-1);
+      font-size: 1rem;
+    }
+    .hero-institutions {
+      margin: 6px auto 0;
+      max-width: 900px;
+      color: var(--ink-2);
+      font-size: 0.92rem;
+      font-style: italic;
+    }
+    .hero-badges {
+      margin: 16px auto 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      background: var(--paper);
+      color: var(--ink-1);
+      font-family: 'Helvetica Neue', 'Arial', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .hero-badge:hover { text-decoration: none; border-color: var(--brand); color: var(--brand); }
 
     d-article {
       max-width: var(--max-w);
@@ -453,9 +487,19 @@
   <header class='hero'>
     <div class='hero-inner'>
       <h1>FlexiSLM: A Dynamic and Controllable Frame Rate Spoken Language Model</h1>
-      <p class='hero-subtitle'>
-        Paper submission to EMNLP
+      <p class='hero-authors'>
+        Jiaqi Li<sup>1</sup>, Chaoren Wang<sup>1</sup>, Xiaohai Tian<sup>2</sup>,
+        Mingjie Chen<sup>1</sup>, Xinyu Liang<sup>1</sup>, Xu Li<sup>1</sup>,
+        Yufan Lin<sup>1</sup>, Junwen Qiu<sup>1</sup>, Jun Zhang<sup>2</sup>,
+        Lu Lu<sup>2</sup>, Haizhou Li<sup>1</sup>, Zhizheng Wu<sup>1</sup>
       </p>
+      <p class='hero-institutions'>
+        <sup>1</sup>The Chinese University of Hong Kong, Shenzhen&nbsp;&nbsp;<sup>2</sup>ByteDance
+      </p>
+      <div class='hero-badges'>
+        <a class='hero-badge' href='https://arxiv.org/abs/2606.31247' target='_blank' rel='noopener'>arXiv:2606.31247</a>
+        <a class='hero-badge' href='https://github.com/AmphionTeam/FlexiSLM' target='_blank' rel='noopener'>Code (in progress)</a>
+      </div>
     </div>
   </header>
 
