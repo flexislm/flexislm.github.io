@@ -167,6 +167,26 @@
       font-size: 0.88rem;
       font-style: italic;
     }
+    .training-stages {
+      max-width: 980px;
+      margin: 16px auto 0;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      text-align: left;
+    }
+    .training-stages h3 {
+      margin-top: 0;
+      text-align: left;
+    }
+    .training-stage-list {
+      margin: 0;
+      padding-left: 22px;
+      color: var(--ink-1);
+    }
+    .training-stage-list li {
+      margin-bottom: 6px;
+      padding-left: 2px;
+    }
 
     /* Notation legend (for FlexiSLM A->B) */
     .notation {
@@ -484,6 +504,25 @@
           compression on speech input and controllable frame-rate generation on speech
           output.
         </figcaption>
+        <div class='training-stages'>
+          The architecture of FlexiSLM is shown in the Figure above. Its training progresses in 3 stages:
+          <ol class='training-stage-list'>
+            <li>
+              <strong>Talker pre-training.</strong> Freeze the LLM backbone and train only
+              the randomly initialized Talker end to end on about 100K hours of English TTS.
+            </li>
+            <li>
+              <strong>Multi-task LoRA fine-tuning.</strong> Activate the input-side Frame
+              Merging Module, Thinker, and Talker; apply LoRA to the Thinker and train on
+              mixed speech tasks.
+            </li>
+            <li>
+              <strong>Full fine-tuning.</strong> Continue from Stage 2, merge the LoRA
+              updates into the LLM, train all parameters, and enable the
+              Talker-to-Thinker connection to improve speech perception and generation quality.
+            </li>
+          </ol>
+        </div>
       </figure>
     </section>
 
