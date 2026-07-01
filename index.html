@@ -564,6 +564,33 @@
         user's spoken prompt and the assistant's spoken response, together with transcript
         text and rough duration / audio-token statistics from the manifest.
       </p>
+      <p class='section-subtitle'>
+        The corpus is built with a single-turn construction pipeline:
+      </p>
+      <ul>
+        <li>
+          <strong>Prompt collection.</strong> Text prompts are gathered from public QA,
+          instruction-following, and dialogue datasets.
+        </li>
+        <li>
+          <strong>Response generation.</strong> Qwen3-Omni generates text responses. It produces short, conversational, speech-friendly replies.
+        </li>
+        <li>
+          <strong>Speech synthesis.</strong> Responses are synthesized with Qwen3-TTS (fixed
+          speaker “Ryan”), and prompts with Fish-Audio TTS using speakers sampled from
+          English Emilia utterances longer than 5s &mdash; yielding 4M samples (30K hours).
+        </li>
+        <li>
+          <strong>Quality filtering.</strong> Format-based filtering removes code, formulas,
+          excessive punctuation, and non-target languages; correctness filtering uses the
+          DeepSeek-V4-Flash API; and ASR-based filtering with Whisper-medium drops samples
+          with WER &gt; 20%.
+        </li>
+        <li>
+          <strong>Final scale.</strong> Filtering yields 1.4M speech-to-speech dialogue
+          samples totaling 9.9K hours.
+        </li>
+      </ul>
       <div class='sample-list' id='flexislm-data-list'></div>
       <div class='error-box' id='flexislm-data-error' style='display:none; margin-top: 16px;'></div>
     </section>
